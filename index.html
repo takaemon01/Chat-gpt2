@@ -1,43 +1,69 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>数字コード</title>
-  
-
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<button onclick="createCode()">作成</button>
-<div id="codeList"></div>
+  <button onclick="createCode()">作成</button>
+  <div id="codeList"></div>
 
-<script>
-let states = ['◯', '×', '△'];
-function getRandomCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let code = '';
-    for (let i = 0; i < 4; i++) {
+  <script>
+    const states = ['◯', '×', '△'];
+
+    function getRandomCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+      for (let i = 0; i < 4; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
     }
-    return code;
-}
 
-function createCode() {
-    const code = getRandomCode();
-    const div = document.createElement('div');
-    let stateIndex = 0;
+    function createCode() {
+      const code = getRandomCode();
+      const div = document.createElement('div');
+      let stateIndex = 0;
 
-    div.textContent = `${code}${states[stateIndex]}`;
-    div.style.cursor = 'pointer';
-    div.onclick = function() {
+      div.textContent = `${code}${states[stateIndex]}`;
+      div.classList.add('code-item');
+      div.onclick = function () {
         stateIndex = (stateIndex + 1) % states.length;
         div.textContent = `${code}${states[stateIndex]}`;
-    };
+        saveCodes(); // 状態変更時にも保存
+      };
 
-    document.getElementById('codeList').appendChild(div);
-}
-</script>
-<!-- partial -->
-  
+      document.getElementById('codeList').appendChild(div);
+      saveCodes();
+    }
+
+    function saveCodes() {
+      const codeList = document.getElementById('codeList').innerHTML;
+      localStorage.setItem('savedCodes', codeList);
+    }
+
+    function restoreCodes() {
+      const saved = localStorage.getItem('savedCodes');
+      if (saved) {
+        document.getElementById('codeList').innerHTML = saved;
+
+        // 各コードにクリック動作を再設定
+        const items = document.querySelectorAll('.code-item');
+        items.forEach(item => {
+          let text = item.textContent;
+          const code = text.slice(0, 4);
+          let stateIndex = states.indexOf(text.slice(4));
+          item.onclick = function () {
+            stateIndex = (stateIndex + 1) % states.length;
+            item.textContent = `${code}${states[stateIndex]}`;
+            saveCodes();
+          };
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', restoreCodes);
+  </script>
 </body>
 </html>
