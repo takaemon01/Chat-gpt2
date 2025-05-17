@@ -11,6 +11,11 @@
 
   <script>
     const states = ['◯', '×', '△'];
+    const stateColors = {
+      '◯': '#0f0',
+      '×': '#f00',
+      '△': '#ff0'
+    };
 
     function getRandomCode() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -28,10 +33,13 @@
 
       div.textContent = `${code}${states[stateIndex]}`;
       div.classList.add('code-item');
+      div.style.color = stateColors[states[stateIndex]];
+
       div.onclick = function () {
         stateIndex = (stateIndex + 1) % states.length;
         div.textContent = `${code}${states[stateIndex]}`;
-        saveCodes(); // 状態変更時にも保存
+        div.style.color = stateColors[states[stateIndex]];
+        saveCodes();
       };
 
       document.getElementById('codeList').appendChild(div);
@@ -48,15 +56,18 @@
       if (saved) {
         document.getElementById('codeList').innerHTML = saved;
 
-        // 各コードにクリック動作を再設定
         const items = document.querySelectorAll('.code-item');
         items.forEach(item => {
-          let text = item.textContent;
+          const text = item.textContent;
           const code = text.slice(0, 4);
-          let stateIndex = states.indexOf(text.slice(4));
+          let state = text.slice(4);
+          let stateIndex = states.indexOf(state);
+          item.style.color = stateColors[state];
+
           item.onclick = function () {
             stateIndex = (stateIndex + 1) % states.length;
             item.textContent = `${code}${states[stateIndex]}`;
+            item.style.color = stateColors[states[stateIndex]];
             saveCodes();
           };
         });
