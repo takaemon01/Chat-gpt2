@@ -11,10 +11,10 @@
 
   <script>
     const states = ['◯', '×', '△'];
-    const stateColors = {
-      '◯': '#0f0',
-      '×': '#f00',
-      '△': '#ff0'
+    const stateStyles = {
+      '◯': { color: '#0f0', border: '#0f0' },
+      '×': { color: '#f00', border: '#f00' },
+      '△': { color: '#ff0', border: '#ff0' }
     };
 
     function getRandomCode() {
@@ -28,22 +28,41 @@
 
     function createCode() {
       const code = getRandomCode();
-      const div = document.createElement('div');
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('code-item');
+
       let stateIndex = 0;
+      const span = document.createElement('span');
+      span.textContent = `${code}${states[stateIndex]}`;
 
-      div.textContent = `${code}${states[stateIndex]}`;
-      div.classList.add('code-item');
-      div.style.color = stateColors[states[stateIndex]];
+      applyStyle(wrapper, states[stateIndex]);
 
-      div.onclick = function () {
+      span.onclick = function () {
         stateIndex = (stateIndex + 1) % states.length;
-        div.textContent = `${code}${states[stateIndex]}`;
-        div.style.color = stateColors[states[stateIndex]];
+        span.textContent = `${code}${states[stateIndex]}`;
+        applyStyle(wrapper, states[stateIndex]);
         saveCodes();
       };
 
-      document.getElementById('codeList').appendChild(div);
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '×';
+      deleteBtn.className = 'delete-button';
+      deleteBtn.onclick = function () {
+        wrapper.remove();
+        saveCodes();
+      };
+
+      wrapper.appendChild(span);
+      wrapper.appendChild(deleteBtn);
+      document.getElementById('codeList').appendChild(wrapper);
+
       saveCodes();
+    }
+
+    function applyStyle(element, state) {
+      const style = stateStyles[state];
+      element.style.color = style.color;
+      element.style.borderColor = style.border;
     }
 
     function saveCodes() {
@@ -58,16 +77,24 @@
 
         const items = document.querySelectorAll('.code-item');
         items.forEach(item => {
-          const text = item.textContent;
-          const code = text.slice(0, 4);
-          let state = text.slice(4);
-          let stateIndex = states.indexOf(state);
-          item.style.color = stateColors[state];
+          const span = item.querySelector('span');
+          const deleteBtn = item.querySelector('.delete-button');
 
-          item.onclick = function () {
+          const text = span.textContent;
+          const code = text.slice(0, 4);
+          let stateIndex = states.indexOf(text.slice(4));
+
+          applyStyle(item, states[stateIndex]);
+
+          span.onclick = function () {
             stateIndex = (stateIndex + 1) % states.length;
-            item.textContent = `${code}${states[stateIndex]}`;
-            item.style.color = stateColors[states[stateIndex]];
+            span.textContent = `${code}${states[stateIndex]}`;
+            applyStyle(item, states[stateIndex]);
+            saveCodes();
+          };
+
+          deleteBtn.onclick = function () {
+            item.remove();
             saveCodes();
           };
         });
